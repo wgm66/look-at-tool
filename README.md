@@ -9,7 +9,7 @@
 ```
 look_at-repo/
 ├── src/
-│   ├── tools/look-at/          # look_at 工具源码（24 个 .ts + 测试）
+│   ├── tools/look-at/          # look_at 工具源码（25 个 .ts：15 源码 + 10 测试，另附 AGENTS.md）
 │   ├── shared/                 # look_at 直接依赖的 shared 模块（16 个）
 │   └── plugin-state.ts         # VisionCapableModel 类型定义
 ├── skill/

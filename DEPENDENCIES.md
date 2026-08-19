@@ -44,8 +44,9 @@
 
 | 依赖 | 引用点 |
 |------|--------|
-| `../plugin-state`（`VisionCapableModel`） | `vision-capable-models-cache.ts`, `multimodal-agent-metadata.ts` |
+| `../plugin-state`（`VisionCapableModel`） | `multimodal-fallback-chain.ts`（look-at 内 `../../plugin-state`）和 `vision-capable-models-cache.ts`（`../plugin-state`） |
 | `../features/claude-code-session-state/state` | `live-server-route.ts` 引用 `subagentSessions` |
+| `../../../../../test-support/unsafe-test-value` | 仅测试文件：`multimodal-agent-metadata.test.ts`、`session-poller.test.ts`、`tools.test.ts` 引用 `unsafeTestValue` |
 
 ## 四、为什么不能独立编译
 
