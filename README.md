@@ -14,9 +14,12 @@ look_at-repo/
 │   └── plugin-state.ts         # VisionCapableModel 类型定义
 ├── skill/
 │   └── multimodal-delegation/  # 多模态委托 skill
-│       ├── SKILL.md
-│       └── scripts/pdf_to_images.py   # PDF → PNG 栅格化脚本
+│       ├── SKILL.md            # 含禁用方式 + 错误透明化表 + 图片粘贴保护
+│       └── scripts/
+│           ├── pdf_to_images.py   # PDF → PNG 栅格化
+│           └── look_at_pdf.py     # PDF 一行命令自动分析（转图+look_at+汇总）
 ├── DEPENDENCIES.md             # 完整依赖树 + 外部包声明
+├── LICENSE
 └── README.md
 ```
 
@@ -65,12 +68,38 @@ look_at-repo/
 look_at(file_path="path/to/image.png", goal="描述图片内容")
 ```
 
-### PDF 分析（需先转图片）
+### PDF 分析（一行命令自动完成）
+
+```bash
+python skill/multimodal-delegation/scripts/look_at_pdf.py input.pdf --goal "提取文档标题和结构" --dpi 144
+```
+
+脚本会自动：转 PNG → 逐页 look_at → 汇总输出。若 opencode CLI 不可用，回退为仅渲染 PNG + 提示手动调 look_at。
+
+### PDF 分步分析（手动控制）
 
 ```bash
 python skill/multimodal-delegation/scripts/pdf_to_images.py input.pdf --outdir out --dpi 144
 # 然后对每页 PNG 调 look_at
 ```
+
+## 禁用方式
+
+在 `oh-my-openagent.json` 把 `multimodal-looker` 的 `model` 改回文本模型即可事实禁用。详见 `skill/multimodal-delegation/SKILL.md` 的"禁用方式"章节。
+
+## Changelog
+
+### v1.1.0
+
+- **[新增] `look_at_pdf.py` 一行命令自动 PDF 分析**（转图 + 逐页 look_at + 汇总）
+- **[新增] SKILL.md 错误透明化表**（4 类常见失败模式 + 根因 + 解决方案）
+- **[新增] SKILL.md 禁用方式说明**
+- **[新增] SKILL.md 图片粘贴保护策略**（主 agent 主动委托 Nonlinguistic）
+- **[调整] README 同步更新目录结构 + Changelog
+
+### v1.0.0
+
+- 初始快照：look_at 工具源码（25 .ts + AGENTS.md）+ 16 shared 依赖 + multimodal-delegation skill + DEPENDENCIES.md + LICENSE
 
 ## License
 

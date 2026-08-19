@@ -65,6 +65,30 @@ Nonlinguistic 返回结构化结果后，原智能体继续后续处理。
 - "读取PDF"、"PDF解析"、"PDF表格"
 - "多模态"、"图文混排"、"OCR"
 
+## 禁用方式
+
+若要禁用多模态委托，在 `oh-my-openagent.json` 把 `multimodal-looker` 的 `model` 改回文本模型（如 `cloud-ai/deepseek-v4-pro-tg`）即可事实禁用——`look_at` 工具仍可调用，但视觉能力退化为文本模型的描述能力。
+
+## 错误透明化（常见失败模式）
+
+| 场景 | 现象 | 根因 | 解决 |
+|------|------|------|------|
+| `look_at` 传 .pdf | "未包含 PDF 内容" / 超时 | OpenAI-compatible 后端不接受 `application/pdf` file part | 先用 `pdf_to_images.py` 转 PNG 再 `look_at` |
+| `look_at` 传 .mp4 | "No response from multimodal-looker agent" | 后端不支持视频 file part | 需 ffmpeg 抽帧成 PNG 再 `look_at` |
+| `look_at` 传 .wav/.mp3 | "当前模型不支持音频输入" | qwen-3.7-plus 后端不支持音频 | 需转写工具（超出当前能力） |
+| 主 agent 收到粘贴图片但无 vision | API 报错 / 乱码 | 图片字节进入主 context | 主动委托 Nonlinguistic（见下方"图片粘贴保护"） |
+
+## 图片粘贴保护（重要）
+
+**当前无自动 hook 拦截**（oh-my-opencode 的 hooks 是插件内部机制，用户层无法注册）。当用户在 TUI 粘贴图片时，图片字节会**直接进入主 agent 的 context**。若主 agent 模型不支持 vision（如 deepseek-v4-pro-tg），会触发 API 错误或输出乱码。
+
+**主 agent 必须主动识别图片粘贴场景并立即委托 Nonlinguistic**：
+- 检测到 message 中含 image_data / image part → 立即 `look_at(image_data=..., goal="分析图片内容")`
+- 不要尝试用文本模型直接描述图片
+- 不要把图片字节留在主 context 里继续推理
+
+**未来改进**：需要给上游 oh-my-opencode 提 PR，在 `experimental.chat.messages.transform` hook 里加入图片拦截逻辑（参考 oh-my-opencode-slim 的 Observer 实现）。
+
 ## 禁止行为
 
 - ❌ 其他智能体直接用文本模型处理多模态文件（会因模型不支持而失败）
